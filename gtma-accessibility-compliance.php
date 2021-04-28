@@ -20,7 +20,7 @@ add_action( 'wp_head', function() {
         <script
             type="text/javascript"
             src="https://app.termly.io/embed.min.js"
-            data-auto-block="on"
+            data-auto-block="off"
             data-website-uuid="' . $compliance_termly_uuid_1 . '"
             ></script>
         ';
