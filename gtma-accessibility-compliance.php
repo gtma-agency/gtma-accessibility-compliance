@@ -13,14 +13,15 @@ Domain Path: /languages
 add_action( 'wp_head', function() {
 
     $gtma_a_c_settings_options = get_option( 'gtma_a_c_settings_option_name' ); // Array of All Options
-    $compliance_termly_uuid_1 = $gtma_a_c_settings_options['compliance_termly_uuid_1']; // Accessibility Panel Color
-
+    $compliance_termly_uuid_1 = $gtma_a_c_settings_options['compliance_termly_uuid_1']; // Termly UUID
+    $enable_auto_blocker = $gtma_a_c_settings_options['enable_auto_blocker'] ? 'yes' : 'no'; // Termly Auto Block
+	
     if ($compliance_termly_uuid_1) {
         echo '
         <script
             type="text/javascript"
             src="https://app.termly.io/embed.min.js"
-            data-auto-block="on"
+            data-auto-block="'. $enable_auto_blocker .'"
             data-website-uuid="' . $compliance_termly_uuid_1 . '"
             ></script>
         ';
@@ -59,7 +60,7 @@ add_action( 'wp_footer', function() {
             triggerPositionY : 'bottom',
             triggerIcon : 'wheels2',
             triggerSize : 'medium',
-            triggerOffsetX : 20,
+            triggerOffsetX : 70,
             triggerOffsetY : 20,
             mobile : {
                 triggerSize : 'small',
@@ -94,7 +95,7 @@ class GTMAACSettings {
 		add_options_page(
 			'Accessibility &amp; Compliance', // page_title
 			'Accessibility &amp; Compliance', // menu_title
-			'manage_options', // capability
+			'activate_plugins', // capability
 			'gtma-a-c-settings', // menu_slug
 			array( $this, 'gtma_a_c_settings_create_admin_page' ) // function
 		);
@@ -104,7 +105,7 @@ class GTMAACSettings {
 		$this->gtma_a_c_settings_options = get_option( 'gtma_a_c_settings_option_name' ); ?>
 
 		<div class="wrap">
-			<h2>GTMA Accessibility &amp; Compliance Settings</h2>
+			<h2>GTMA Accessibility + Compliance Settings</h2>
 			<p>Customize the settings for your Accessibility and Compliance package through GTMA</p>
 			<?php settings_errors(); ?>
 
@@ -134,20 +135,36 @@ class GTMAACSettings {
 
 		add_settings_field(
 			'accessibility_panel_color_0', // id
-			'Accessibility Panel Color', // title
+			'Accessibility Panel Color(hex)', // title
 			array( $this, 'accessibility_panel_color_0_callback' ), // callback
 			'gtma-a-c-settings-admin', // page
 			'gtma_a_c_settings_setting_section' // section
 		);
 
-        add_settings_field(
+		add_settings_field(
+			'accessibility_trigger_offset', // id
+			'Accessibility Icon Offset(px)', // title
+			array( $this, 'accessibility_trigger_offset_callback' ), // callback
+			'gtma-a-c-settings-admin', // page
+			'gtma_a_c_settings_setting_section', // section
+		);
+
+		add_settings_field(
 			'compliance_termly_uuid_1', // id
 			'Termly UUID', // title
 			array( $this, 'compliance_termly_uuid_1_callback' ), // callback
 			'gtma-a-c-settings-admin', // page
 			'gtma_a_c_settings_setting_section' // section
 		);
-    }
+
+		add_settings_field(
+			'enable_auto_blocker', // id
+			'Enable Auto Blocker', // title
+			array( $this, 'enable_auto_blocker_callback' ), // callback
+			'gtma-a-c-settings-admin', // page
+			'gtma_a_c_settings_setting_section' // section
+		);
+	}
 
 	public function gtma_a_c_settings_sanitize($input) {
 		$sanitary_values = array();
@@ -155,8 +172,16 @@ class GTMAACSettings {
 			$sanitary_values['accessibility_panel_color_0'] = sanitize_text_field( $input['accessibility_panel_color_0'] );
 		}
 
+		if ( isset( $input['accessibility_trigger_offset'] ) ) {
+			$sanitary_values['accessibility_trigger_offset'] = sanitize_text_field( $input['accessibility_trigger_offset'] );
+		}
+
         if ( isset( $input['compliance_termly_uuid_1'] ) ) {
 			$sanitary_values['compliance_termly_uuid_1'] = sanitize_text_field( $input['compliance_termly_uuid_1'] );
+		}
+
+		if ( isset( $input['enable_auto_blocker'] ) ) {
+			$sanitary_values['enable_auto_blocker'] = sanitize_text_field( $input['enable_auto_blocker'] );
 		}
 
         return $sanitary_values;
@@ -173,11 +198,26 @@ class GTMAACSettings {
 		);
 	}
 
+	public function accessibility_trigger_offset_callback() {
+		printf(
+			'<input class="regular-text" type="number" name="gtma_a_c_settings_option_name[accessibility_trigger_offset]" id="accessibility_trigger_offset" value="%s">',
+			isset( $this->gtma_a_c_settings_options['accessibility_trigger_offset'] ) ? esc_attr( $this->gtma_a_c_settings_options['accessibility_trigger_offset']) : '20'
+		);
+	}
+
     public function compliance_termly_uuid_1_callback() {
         printf(
             '<input class="regular-text" type="text" name="gtma_a_c_settings_option_name[compliance_termly_uuid_1]" id="compliance_termly_uuid_1" value="%s">',
             isset( $this->gtma_a_c_settings_options['compliance_termly_uuid_1'] ) ? esc_attr( $this->gtma_a_c_settings_options['compliance_termly_uuid_1']) : ''
         );
+	}
+
+	public function enable_auto_blocker_callback() {
+		$options = $this->gtma_a_c_settings_options['enable_auto_blocker'];
+
+		$html = '<input type="checkbox" id="enable_auto_blocker" name="gtma_a_c_settings_option_name[enable_auto_blocker]" value="1"' . checked( 1, $options, false ) . '/>';
+		$html .= '<br><span class="description">If there are issues with page elements loading, try disabling this.</span>';
+		echo $html;
 	}
 }
 if ( is_admin() )
