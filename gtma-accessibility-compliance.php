@@ -147,6 +147,14 @@ class GTMAACSettings {
 			'gtma-a-c-settings-admin', // page
 			'gtma_a_c_settings_setting_section' // section
 		);
+
+		add_settings_field(
+			'compliance_termly_auto_block', // id
+			'Termly auto-block', // title
+			array( $this, 'compliance_termly_auto_block_callback' ), // callback
+			'gtma-a-c-settings-admin', // page
+			'gtma_a_c_settings_setting_section' // section
+		);
     }
 
 	public function gtma_a_c_settings_sanitize($input) {
@@ -159,7 +167,7 @@ class GTMAACSettings {
 			$sanitary_values['compliance_termly_uuid_1'] = sanitize_text_field( $input['compliance_termly_uuid_1'] );
 		}
 
-        return $sanitary_values;
+		return $sanitary_values;
 	}
 
 	public function gtma_a_c_settings_section_info() {
@@ -177,6 +185,14 @@ class GTMAACSettings {
         printf(
             '<input class="regular-text" type="text" name="gtma_a_c_settings_option_name[compliance_termly_uuid_1]" id="compliance_termly_uuid_1" value="%s">',
             isset( $this->gtma_a_c_settings_options['compliance_termly_uuid_1'] ) ? esc_attr( $this->gtma_a_c_settings_options['compliance_termly_uuid_1']) : ''
+        );
+	}
+
+	public function compliance_termly_auto_block_callback() {
+        printf(
+            '<input class="regular-text" type="checkbox" name="gtma_a_c_settings_option_name[compliance_termly_auto_block]" id="compliance_termly_auto_block" value="%s" %s>',
+            isset( $this->gtma_a_c_settings_options['compliance_termly_auto_block'] ) ? esc_attr( $this->gtma_a_c_settings_options['compliance_termly_auto_block']) : '', 
+			checked( 1, $this->gtma_a_c_settings_options['compliance_termly_auto_block'])
         );
 	}
 }
