@@ -64,10 +64,10 @@ add_action( 'wp_footer', function() {
             triggerOffsetY : 20,
             mobile : {
                 triggerSize : 'small',
-                triggerPositionX : 'right',
-                triggerPositionY : 'center',
+                triggerPositionX : 'left',
+                triggerPositionY : 'bottom',
                 triggerOffsetX : 10,
-                triggerOffsetY : 0,
+                triggerOffsetY : 10,
                 triggerRadius : '50%'
             }
         });
