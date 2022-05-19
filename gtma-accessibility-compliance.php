@@ -63,8 +63,8 @@ add_action( 'wp_footer', function() {
             triggerPositionY : 'bottom',
             triggerIcon : 'wheels2',
             triggerSize : 'medium',
-            triggerOffsetX : 70,
-            triggerOffsetY : $accessibility_trigger_offset,
+            triggerOffsetX : $accessibility_trigger_offset,
+            triggerOffsetY : 20,
             mobile : {
                 triggerSize : 'small',
                 triggerPositionX : 'left',
