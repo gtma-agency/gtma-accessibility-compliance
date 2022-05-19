@@ -37,6 +37,9 @@ add_action( 'wp_footer', function() {
 
     $gtma_a_c_settings_options = get_option( 'gtma_a_c_settings_option_name' ); // Array of All Options
     $accessibility_panel_color_0 = $gtma_a_c_settings_options['accessibility_panel_color_0']; // Accessibility Panel Color
+	$accessibility_trigger_offset = $gtma_a_c_settings_options['accessibility_trigger_offset'];
+	$accessibility_trigger_position = $gtma_a_c_settings_options['accessibility_trigger_position'];
+
 
     echo "
     <script>
@@ -56,12 +59,12 @@ add_action( 'wp_footer', function() {
             leadColor : '$accessibility_panel_color_0', // customize to the site colors
             triggerColor : '$accessibility_panel_color_0', // customize to the site colors
             triggerRadius : '50%',
-            triggerPositionX : 'right',
+            triggerPositionX : '$accessibility_trigger_position',
             triggerPositionY : 'bottom',
             triggerIcon : 'wheels2',
             triggerSize : 'medium',
             triggerOffsetX : 70,
-            triggerOffsetY : 20,
+            triggerOffsetY : $accessibility_trigger_offset,
             mobile : {
                 triggerSize : 'small',
                 triggerPositionX : 'left',
@@ -150,6 +153,14 @@ class GTMAACSettings {
 		);
 
 		add_settings_field(
+			'accessibility_trigger_position', // id
+			'Accessibility Icon Position', // title
+			array( $this, 'accessibility_trigger_position_callback' ), // callback
+			'gtma-a-c-settings-admin', // page
+			'gtma_a_c_settings_setting_section', // section
+		);
+
+		add_settings_field(
 			'compliance_termly_uuid_1', // id
 			'Termly UUID', // title
 			array( $this, 'compliance_termly_uuid_1_callback' ), // callback
@@ -174,6 +185,10 @@ class GTMAACSettings {
 
 		if ( isset( $input['accessibility_trigger_offset'] ) ) {
 			$sanitary_values['accessibility_trigger_offset'] = sanitize_text_field( $input['accessibility_trigger_offset'] );
+		}
+
+		if ( isset( $input['accessibility_trigger_position'] ) ) {
+			$sanitary_values['accessibility_trigger_position'] = sanitize_text_field( $input['accessibility_trigger_position'] );
 		}
 
         if ( isset( $input['compliance_termly_uuid_1'] ) ) {
@@ -205,6 +220,15 @@ class GTMAACSettings {
 		);
 	}
 
+	public function accessibility_trigger_position_callback() {
+		$options = $this->gtma_a_c_settings_options['accessibility_trigger_position'] ?? 'right';
+		
+		printf(
+			'<label><input type="radio" name="gtma_a_c_settings_option_name[accessibility_trigger_position]" value="right" ' . checked( 'right', $options, false ) . '>Right</label>
+			<label><input type="radio" name="gtma_a_c_settings_option_name[accessibility_trigger_position]" value="left" ' . checked( 'left', $options, false ) . '>Left</label>',
+		);
+	}
+
     public function compliance_termly_uuid_1_callback() {
         printf(
             '<input class="regular-text" type="text" name="gtma_a_c_settings_option_name[compliance_termly_uuid_1]" id="compliance_termly_uuid_1" value="%s">',
@@ -220,8 +244,20 @@ class GTMAACSettings {
 		echo $html;
 	}
 }
-if ( is_admin() )
+if ( is_admin() ) {
 	$gtma_a_c_settings = new GTMAACSettings();
+}
+
+function ac_admin_scripts(){
+	global $pagenow; 
+	 
+	if($pagenow == '/options-general.php?page=gtma-a-c-settings'){
+		wp_enqueue_script('admin-color-picker', 'https://unpkg.com/simple-color-picker/dist/simple-color-picker.umd.js' );
+	}
+	 
+}
+	 
+add_action( 'admin_enqueue_scripts', 'ac_admin_scripts' );
 
 /* 
  * Retrieve this value with:
