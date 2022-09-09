@@ -3,7 +3,7 @@
 Plugin Name: GTMA Accessibility & Compliance
 Plugin URI: https://gtma.agency/accessibility-compliance
 Description: Adds accessibilty and complaince support to websites powered by GTMA
-Version: 0.1.0
+Version: 0.2.0
 Author: GTMA Devs
 Author URI: https://gtma.agency
 Text Domain: gtma-a-c
@@ -12,34 +12,32 @@ Domain Path: /languages
 
 add_action( 'wp_head', function() {
 
-    $gtma_a_c_settings_options = get_option( 'gtma_a_c_settings_option_name' ); // Array of All Options
-    $compliance_termly_uuid_1 = $gtma_a_c_settings_options['compliance_termly_uuid_1']; // Termly UUID
+    $gtma_a_c_settings_options = get_option( 'gtma_a_c_settings_option_name' ) ?? []; // Array of All Options
+    $compliance_termly_uuid_1 = $gtma_a_c_settings_options['compliance_termly_uuid_1'] ?? []; // Termly UUID
     $enable_auto_blocker = $gtma_a_c_settings_options['enable_auto_blocker'] ? 'yes' : 'no'; // Termly Auto Block
 	
     if ($compliance_termly_uuid_1) {
         echo '
-        <script
-            type="text/javascript"
+        <script type="text/javascript"
             src="https://app.termly.io/embed.min.js"
             data-auto-block="'. $enable_auto_blocker .'"
             data-website-uuid="' . $compliance_termly_uuid_1 . '"
-            ></script>
-        ';
+            >
+		</script>';
     } else {
         echo '
         <script>
-        console.log("Please add the Termly UUID in the settings page");
+        	console.log("Please add the Termly UUID in the settings page");
         </script>';
     }
 }, 1);
 
 add_action( 'wp_footer', function() {
 
-    $gtma_a_c_settings_options = get_option( 'gtma_a_c_settings_option_name' ); // Array of All Options
-    $accessibility_panel_color_0 = $gtma_a_c_settings_options['accessibility_panel_color_0']; // Accessibility Panel Color
-	$accessibility_trigger_offset = $gtma_a_c_settings_options['accessibility_trigger_offset'];
-	$accessibility_trigger_position = $gtma_a_c_settings_options['accessibility_trigger_position'];
-
+    $gtma_a_c_settings_options = get_option( 'gtma_a_c_settings_option_name' ) ?? []; // Array of All Options
+    $accessibility_panel_color_0 = $gtma_a_c_settings_options['accessibility_panel_color_0'] ?? []; // Accessibility Panel Color
+	$accessibility_trigger_offset = $gtma_a_c_settings_options['accessibility_trigger_offset'] ?? null;
+	$accessibility_trigger_position = $gtma_a_c_settings_options['accessibility_trigger_position'] ?? null;
 
     echo "
     <script>
@@ -63,8 +61,8 @@ add_action( 'wp_footer', function() {
             triggerPositionY : 'bottom',
             triggerIcon : 'wheels2',
             triggerSize : 'medium',
-            triggerOffsetX : $accessibility_trigger_offset,
-            triggerOffsetY : 20,
+            triggerOffsetX : 70,
+            triggerOffsetY : $accessibility_trigger_offset,
             mobile : {
                 triggerSize : 'small',
                 triggerPositionX : 'left',
@@ -208,14 +206,26 @@ class GTMAACSettings {
 
 	public function accessibility_panel_color_0_callback() {
 		printf(
-			'<input class="regular-text" type="text" name="gtma_a_c_settings_option_name[accessibility_panel_color_0]" id="accessibility_panel_color_0" value="%s">',
+			'<script>
+			(function( $ ) {
+ 
+				// Add Color Picker to all inputs that have color-field class
+				$(function() {
+					$(".color-field").wpColorPicker();
+				});
+				 
+			})( jQuery );
+			</script>
+			<div id="color-picker"></div>
+			<input class="color-field" type="text" name="gtma_a_c_settings_option_name[accessibility_panel_color_0]" id="accessibility_panel_color_0" value="%s">',
 			isset( $this->gtma_a_c_settings_options['accessibility_panel_color_0'] ) ? esc_attr( $this->gtma_a_c_settings_options['accessibility_panel_color_0']) : ''
 		);
 	}
 
 	public function accessibility_trigger_offset_callback() {
 		printf(
-			'<input class="regular-text" type="number" name="gtma_a_c_settings_option_name[accessibility_trigger_offset]" id="accessibility_trigger_offset" value="%s">',
+			'<input class="regular-text" type="number" name="gtma_a_c_settings_option_name[accessibility_trigger_offset]" id="accessibility_trigger_offset" value="%s">
+			<br><span class="description">Move the icon away from the edge to avoid overlapping other elements</span>',
 			isset( $this->gtma_a_c_settings_options['accessibility_trigger_offset'] ) ? esc_attr( $this->gtma_a_c_settings_options['accessibility_trigger_offset']) : '20'
 		);
 	}
@@ -224,8 +234,8 @@ class GTMAACSettings {
 		$options = $this->gtma_a_c_settings_options['accessibility_trigger_position'] ?? 'right';
 		
 		printf(
-			'<label><input type="radio" name="gtma_a_c_settings_option_name[accessibility_trigger_position]" value="right" ' . checked( 'right', $options, false ) . '>Right</label>
-			<label><input type="radio" name="gtma_a_c_settings_option_name[accessibility_trigger_position]" value="left" ' . checked( 'left', $options, false ) . '>Left</label>',
+			'<label><input type="radio" name="gtma_a_c_settings_option_name[accessibility_trigger_position]" value="left" ' . checked( 'left', $options, false ) . '>Left</label>
+			<label><input type="radio" name="gtma_a_c_settings_option_name[accessibility_trigger_position]" value="right" ' . checked( 'right', $options, false ) . '>Right</label>',
 		);
 	}
 
@@ -237,10 +247,10 @@ class GTMAACSettings {
 	}
 
 	public function enable_auto_blocker_callback() {
-		$options = $this->gtma_a_c_settings_options['enable_auto_blocker'];
+		$options = $this->gtma_a_c_settings_options['enable_auto_blocker'] ?? false;
 
 		$html = '<input type="checkbox" id="enable_auto_blocker" name="gtma_a_c_settings_option_name[enable_auto_blocker]" value="1"' . checked( 1, $options, false ) . '/>';
-		$html .= '<br><span class="description">If there are issues with page elements loading, try disabling this.</span>';
+		$html .= '<br><span class="description">If there are issues with page elements loading, try enabling this.</span>';
 		echo $html;
 	}
 }
@@ -250,14 +260,13 @@ if ( is_admin() ) {
 
 function ac_admin_scripts(){
 	global $pagenow; 
-	 
-	if($pagenow == '/options-general.php?page=gtma-a-c-settings'){
-		wp_enqueue_script('admin-color-picker', 'https://unpkg.com/simple-color-picker/dist/simple-color-picker.umd.js' );
-	}
-	 
+
+	if($pagenow == 'options-general.php'){
+		wp_enqueue_style( 'wp-color-picker' ); 
+	} 
 }
 	 
-add_action( 'admin_enqueue_scripts', 'ac_admin_scripts' );
+add_action( 'admin_enqueue_scripts', 'ac_admin_scripts', 10 );
 
 /* 
  * Retrieve this value with:
