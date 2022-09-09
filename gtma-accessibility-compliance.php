@@ -14,9 +14,10 @@ add_action( 'wp_head', function() {
 
     $gtma_a_c_settings_options = get_option( 'gtma_a_c_settings_option_name' ) ?? []; // Array of All Options
     $compliance_termly_uuid_1 = $gtma_a_c_settings_options['compliance_termly_uuid_1'] ?? []; // Termly UUID
-    $enable_auto_blocker = $gtma_a_c_settings_options['enable_auto_blocker'] ? 'yes' : 'no'; // Termly Auto Block
-	
-    if ($compliance_termly_uuid_1) {
+    $is_enable_auto_blocker = $gtma_a_c_settings_options['enable_auto_blocker'] ?? false;
+    $enable_auto_blocker = $is_enable_auto_blocker ? 'yes' : 'no'; // Termly Auto Block	
+
+	if ($compliance_termly_uuid_1) {
         echo '
         <script type="text/javascript"
             src="https://app.termly.io/embed.min.js"
