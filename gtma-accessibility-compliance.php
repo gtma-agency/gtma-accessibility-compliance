@@ -3,7 +3,7 @@
 Plugin Name: GTMA Accessibility & Compliance
 Plugin URI: https://gtma.agency/accessibility-compliance
 Description: Adds accessibilty and complaince support to websites powered by GTMA
-Version: 0.2.0
+Version: 0.3.0
 Author: GTMA Devs
 Author URI: https://gtma.agency
 Text Domain: gtma-a-c
